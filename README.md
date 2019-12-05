@@ -4,4 +4,4 @@
 `mvn package docker:build`
 
 ## Docker Image
-<a href="https://hub.docker.com/repository/docker/kunupat/foo" target="_blank">kunupat/bar</a>
+<a href="https://hub.docker.com/repository/docker/kunupat/foo" target="_blank">kunupat/foo</a>
