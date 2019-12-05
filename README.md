@@ -1,0 +1,1 @@
+Foo- Spring Boot REST service with four endpoints
