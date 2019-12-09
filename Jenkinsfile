@@ -1,6 +1,6 @@
-                node("maven") {
+node("maven") {
                   stage("Checkout") {
-                    git url: "${GIT_SOURCE_URL}", branch: "${GIT_SOURCE_REF}"
+                    git url: "https://github.com/vgokul984/foo.git"
                   }
                   stage("Build WAR") {
                     sh "mvn clean package -Popenshift"
@@ -11,12 +11,12 @@
                 node {
                   stage("Build Image") {
                     unstash name:"war"
-                    def status = sh(returnStdout: true, script: "oc start-build ${appName}-docker --from-file=target/ROOT.war -n ${project}")
+                    def status = sh(returnStdout: true, script: "oc start-build foo-docker --from-file=target/ROOT.war -n ${project}")
 
                     def result = status.split("\n").find{ it.matches("^build.*started") }
                     
                     if(!result) {
-                      echo "ERROR: No started build found for ${appName}"
+                      echo "ERROR: No started build found for foo"
                       currentBuild.result = 'FAILURE'
                       return
                     }
@@ -47,7 +47,7 @@
                   stage("Deploy") {
                     openshift.withCluster() {
                       openshift.withProject() {
-                        def dc = openshift.selector('dc', "${appName}")
+                        def dc = openshift.selector('dc', "foo")
                         dc.rollout().status()
                       }
                     }
