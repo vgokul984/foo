@@ -1,4 +1,7 @@
 node {
+  tools {
+        maven 'Maven_3.5.2' 
+    }
   stage('build & deploy') {
     openshiftBuild bldCfg: 'foojavaapp',
       namespace: 'development',
