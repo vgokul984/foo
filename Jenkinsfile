@@ -1,9 +1,9 @@
 node {
   stage('build & deploy') {
-    openshiftBuild bldCfg: 'hellopythonapp',
+    openshiftBuild bldCfg: 'foojavaapp',
       namespace: 'development',
       showBuildLogs: 'true'
-    openshiftVerifyDeployment depCfg: 'hellopythonapp',
+    openshiftVerifyDeployment depCfg: 'foojavaapp',
       namespace: 'development'
   }
   stage('approval (test)') {
@@ -11,13 +11,13 @@ node {
       id: 'approval'
   }
   stage('deploy to test') {
-    openshiftTag srcStream: 'hellopythonapp',
+    openshiftTag srcStream: 'foojavaapp',
       namespace: 'development',
       srcTag: 'latest',
       destinationNamespace: 'testing',
       destStream: 'hellopythonapp',
       destTag: 'test'
-    openshiftVerifyDeployment depCfg: 'hellopythonapp',
+    openshiftVerifyDeployment depCfg: 'foojavaapp',
       namespace: 'testing'
   }
   stage('approval (production)') {
@@ -25,13 +25,13 @@ node {
       id: 'approval'
   }
   stage('deploy to production') {
-    openshiftTag srcStream: 'hellopythonapp',
+    openshiftTag srcStream: 'foojavaapp',
       namespace: 'development',
       srcTag: 'latest',
       destinationNamespace: 'production',
       destStream: 'hellopythonapp',
       destTag: 'prod'
-    openshiftVerifyDeployment depCfg: 'hellopythonapp',
+    openshiftVerifyDeployment depCfg: 'foojavaapp',
       namespace: 'production'
   }
 }
