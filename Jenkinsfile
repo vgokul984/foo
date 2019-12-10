@@ -1,23 +1,29 @@
 pipeline {
   agent {
-      label 'maven'
+    // Using the maven builder agent
+    label "maven"
   }
   stages {
-    stage('Build') {
-      when {
-        expression {
-          openshift.withCluster() {
-            return !openshift.selector('bc', 'foo').exists();
-          }
-        }
-      }
+    // Checkout Source Code and calculate Version Numbers and Tags
+    stage('Checkout Source') {
       steps {
-        script {
-          openshift.withCluster() {
-            openshift.newApp('foo:latest~https://github.com/vgokul984/foo.git')
-          }
+        git url: "https://github.com/vgokul984/foo.git"
+       script {
+          def pom = readMavenPom file: 'pom.xml'
+          def version = pom.version
         }
       }
     }
+    // Using Maven build the war file
+    // Do not run tests in this step
+    stage('Build App') {
+      steps {
+        echo "Building war file"
+        sh "mvn clean package -DskipTests=true"
+      }
+    }
+	stage 'Deploy'
+    def builder = new com.openshift.jenkins.plugins.pipeline.OpenShiftBuilder("", "foo", "demo", "", "", "", "", "true", "", "")
+    step builder
   }
-}
+} 
