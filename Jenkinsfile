@@ -1,35 +1,26 @@
-node('maven') {
-  stage('build & deploy') {
-    openshiftBuild bldCfg: 'foo',
-      namespace: 'testing',
-      showBuildLogs: 'true'
-    openshiftVerifyDeployment depCfg: 'foo',
-      namespace: 'development'
+pipeline {
+  agent {
+    // Using the maven builder agent
+    label "maven"
   }
-  stage('approval (test)') {
-    input message: 'Approve for testing?',
-      id: 'approval'
+  stages {
+    // Checkout Source Code and calculate Version Numbers and Tags
+    stage('Checkout Source') {
+      steps {
+        git url: "https://github.com/vgokul984/foo.git"
+       script {
+          def pom = readMavenPom file: 'pom.xml'
+          def version = pom.version
+        }
+      }
+    }
+    // Using Maven build the war file
+    // Do not run tests in this step
+    stage('Build App') {
+      steps {
+        echo "Building war file"
+        sh "mvn clean package -DskipTests=true"
+      }
+    }
   }
-  stage('deploy to test') {
-    openshiftTag srcStream: 'foo',
-      namespace: 'testing',
-      srcTag: 'latest',
-      destinationNamespace: 'testing',
-      destTag: 'test'
-    openshiftVerifyDeployment depCfg: 'foo',
-      namespace: 'testing'
-  }
-  stage('approval (production)') {
-    input message: 'Approve for production?',
-      id: 'approval'
-  }
-  stage('deploy to production') {
-    openshiftTag srcStream: 'fooapp',
-      namespace: 'testing',
-      srcTag: 'latest',
-      destinationNamespace: 'production',
-      destTag: 'prod'
-    openshiftVerifyDeployment depCfg: 'foo',
-      namespace: 'production'
-  }
-}
+}  
