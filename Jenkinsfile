@@ -2,7 +2,8 @@ pipeline {
   agent {
       label 'maven'
   }
-  stage('Checkout Source') {
+  stages {
+    stage('Checkout Source') {
       steps {
         git url: "https://github.com/vgokul984/foo.git"
        script {
@@ -11,7 +12,6 @@ pipeline {
         }
       }
     }
-  stages {
     stage('Build App') {
       steps {
 	    echo "Building war file"
