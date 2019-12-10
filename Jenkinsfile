@@ -29,7 +29,7 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-            openshift.newBuild("--name=foo", "--image-stream=foo:latest", "--binary")
+            openshift.newBuild("--name=foo", "--image-stream=foo:latest")
           }
         }
       }
@@ -38,7 +38,7 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-            openshift.selector("bc", "foo").startBuild("--from-file=target/foo.jar", "--wait")
+            openshift.selector("bc", "foo").startBuild, "--wait")
           }
         }
       }
