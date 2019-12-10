@@ -24,15 +24,6 @@ pipeline {
         }
       }
     }
-    stage('Build Image') {
-      steps {
-        script {
-          openshift.withCluster() {
-            openshift.selector("bc", "foo").startBuild
-          }
-        }
-      }
-    }
     stage('Promote to testing') {
       steps {
         script {
