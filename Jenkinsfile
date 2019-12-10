@@ -4,7 +4,7 @@ node('maven') {
       namespace: 'testing',
       showBuildLogs: 'true'
     openshiftVerifyDeployment depCfg: 'foo',
-      namespace: 'Dev'
+      namespace: 'testing'
   }
   stage('approval (development)') {
     input message: 'Approve for development?',
