@@ -1,20 +1,20 @@
 node('maven') {
   stage('build & deploy') {
     openshiftBuild bldCfg: 'foo',
-      namespace: 'Dev',
+      namespace: 'testing',
       showBuildLogs: 'true'
     openshiftVerifyDeployment depCfg: 'foo',
       namespace: 'Dev'
   }
-  stage('approval (test)') {
-    input message: 'Approve for testing?',
+  stage('approval (development)') {
+    input message: 'Approve for development?',
       id: 'approval'
   }
   stage('deploy to test') {
     openshiftTag srcStream: 'foo',
-      namespace: 'Dev',
+      namespace: 'testing',
       srcTag: 'latest',
-      destinationNamespace: 'testing',
+      destinationNamespace: 'development',
       destTag: 'test'
     openshiftVerifyDeployment depCfg: 'foo',
       namespace: 'testing'
@@ -25,7 +25,7 @@ node('maven') {
   }
   stage('deploy to production') {
     openshiftTag srcStream: 'fooapp',
-      namespace: 'Dev',
+      namespace: 'testing',
       srcTag: 'latest',
       destinationNamespace: 'production',
       destTag: 'prod'
