@@ -22,8 +22,9 @@ pipeline {
         sh "mvn clean package -DskipTests=true"
       }
     }
-	stage 'Deploy'
+    stage('Deploy'){
     def builder = new com.openshift.jenkins.plugins.pipeline.OpenShiftBuilder("", "foo", "demo", "", "", "", "", "true", "", "")
     step builder
+    }
   }
 } 
