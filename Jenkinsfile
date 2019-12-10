@@ -1,6 +1,20 @@
-node('maven') {
-  stage 'build'
-  openshiftBuild(buildConfig: 'foo', showBuildLogs: 'true')
-  stage 'deploy'
-  openshiftDeploy(deploymentConfig: 'foo')
+pipeline {
+  stages {
+    stage('Build') {
+      when {
+        expression {
+          openshift.withCluster() {
+            return !openshift.selector('bc', 'foo').exists();
+          }
+        }
+      }
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.newApp('foo:latest~https://github.com/vgokul984/foo.git')
+          }
+        }
+      }
+    }
+  }
 }
