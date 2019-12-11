@@ -12,7 +12,7 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-            openshift.newBuild("--name=foo", "--image-stream=foo:latest", "--allow-missing-imagestream-tags", "--binary")
+            openshift.newBuild("--name=foo-app", "--image-stream=foo:latest", "--allow-missing-imagestream-tags", "--binary")
           }
         }
       }
