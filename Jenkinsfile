@@ -79,7 +79,7 @@ pipeline {
                 }
             }
         }
-        stage('Promote to STAGE?') {
+        stage('Promote to Production?') {
             steps {
                 timeout(time:15, unit:'MINUTES') {
                     input message: "Promote to STAGE?", ok: "Promote"
@@ -91,7 +91,7 @@ pipeline {
                 }
             }
         }
-        stage('Rollout to Production') {
+        stage('Rollout to production') {
             steps {
                 script {
                     openshift.withCluster() {
@@ -107,30 +107,5 @@ pipeline {
                 } 
             }
         }
-        stage('Deploy to production') {
-            when {
-                expression {
-                    openshift.withCluster() {
-                        openshift.withProject(env.STAGE_PROJECT) {
-                            return !openshift.selector('dc', "${TEMPLATE_NAME}").exists()
-                        }
-                    }
-                }
-            }
-            steps {
-                script {
-                    openshift.withCluster() {
-                        openshift.withProject(env.STAGE_PROJECT) {
-                            def app = openshift.newApp("${TEMPLATE_NAME}:latest")
-                            app.narrow("svc").expose();
-                            def dc = openshift.selector("dc", "${TEMPLATE_NAME}")
-                            while (dc.object().spec.replicas != dc.object().status.availableReplicas) {
-                            }
-                        }
-                    }
-                }
-            }
-        }
-       }
     }
 }
