@@ -4,13 +4,12 @@ pipeline {
     }
     environment {
         APPLICATION_NAME = 'foo'
-        GIT_REPO="http://github.com/ruddra/openshift-python-nginx.git"
+        GIT_REPO="https://github.com/vgokul984/foo.git"
         GIT_BRANCH="master"
         STAGE_TAG = "promoteToQA"
         DEV_PROJECT = "development"
         STAGE_PROJECT = "testing"
         TEMPLATE_NAME = "foo"
-        ARTIFACT_FOLDER = "target"
         PORT = 8081;
     }
     stages {
@@ -70,7 +69,7 @@ pipeline {
                     openshift.withCluster() {
                         openshift.withProject(env.DEV_PROJECT) {
                             def app = openshift.newApp("${TEMPLATE_NAME}:latest")
-                            app.narrow("svc").expose("--port=${PORT}");
+                            app.narrow("svc").expose();
                             def dc = openshift.selector("dc", "${TEMPLATE_NAME}")
                             while (dc.object().spec.replicas != dc.object().status.availableReplicas) {
                                 sleep 10
@@ -102,7 +101,7 @@ pipeline {
                                 openshift.selector('svc', '${TEMPLATE_NAME}').delete()
                                 openshift.selector('route', '${TEMPLATE_NAME}').delete()
                             }
-                        openshift.newApp("${TEMPLATE_NAME}:${STAGE_TAG}").narrow("svc").expose("--port=${PORT}")
+                        openshift.newApp("${TEMPLATE_NAME}:${STAGE_TAG}").narrow("svc").expose()
                         }
                     }
                 } 
