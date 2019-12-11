@@ -12,7 +12,7 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-            openshift.newBuild("--name=java", "https://github.com/vgokul984/foo.git")
+            openshift.newBuild("--name=foo", "https://github.com/vgokul984/foo.git")
           }
         }
       }
