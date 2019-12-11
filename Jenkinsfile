@@ -1,49 +1,87 @@
-node('maven') {
-  stage 'build & deploy in dev'
-  openshiftBuild(namespace: 'testing',
-  			    buildConfig: 'foo',
-			    showBuildLogs: 'true',
-			    waitTime: '3000000')
-  
-  stage 'verify deploy in dev'
-  openshiftVerifyDeployment(namespace: 'development',
-				       depCfg: 'foo',
-				       replicaCount:'1',
-				       verifyReplicaCount: 'true',
-				       waitTime: '300000')
-  
-  stage 'deploy in test'
-  openshiftTag(namespace: 'development',
-  			  sourceStream: 'foo',
-			  sourceTag: 'latest',
-			  destinationStream: 'foo',
-			  destinationTag: 'promoteQA')
-			  
-  stage 'Deploy to production'
-  timeout(time: 2, unit: 'DAYS') {
-      input message: 'Approve to production?'
- }
-
-  openshiftTag(namespace: 'development',
-  			  sourceStream: 'foo',
-			  sourceTag: 'promoteQA',
-			  destinationStream: 'foo',
-			  destinationTag: 'promotePRD')
-
-  
-  openshiftDeploy(namespace: 'production',
-  			     deploymentConfig: 'foo',
-			     waitTime: '300000')
-  
-  openshiftScale(namespace: 'production',
-  			     deploymentConfig: 'foo',
-			     waitTime: '300000',
-			     replicaCount: '2')
-  
-  stage 'verify deploy in production'
-  openshiftVerifyDeployment(namespace: 'production',
-				       depCfg: 'foo',
-				       replicaCount:'2',
-				       verifyReplicaCount: 'true',
-				       waitTime: '300000')
+pipeline {
+  agent {
+      label 'maven'
+  }
+  stages {
+    stage('Build App') {
+      steps {
+        sh "mvn install"
+      }
+    }
+    stage('Create Image Builder') {
+      when {
+        expression {
+          openshift.withCluster() {
+            return !openshift.selector("bc", "foo").exists();
+          }
+        }
+      }
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.newBuild("--name=foo", "--image-stream=java:11", "--binary")
+          }
+        }
+      }
+    }
+    stage('Build Image') {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.selector("bc", "foo").startBuild("--from-file=target/foo-spring.jar", "--wait")
+          }
+        }
+      }
+    }
+    stage('Promote to DEV') {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.tag("foo:latest", "foo:dev")
+          }
+        }
+      }
+    }
+    stage('Create DEV') {
+      when {
+        expression {
+          openshift.withCluster() {
+            return !openshift.selector('dc', 'foo-dev').exists()
+          }
+        }
+      }
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.newApp("foo:latest", "--name=foo-dev").narrow('svc').expose()
+          }
+        }
+      }
+    }
+    stage('Promote STAGE') {
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.tag("foo:dev", "foo:stage")
+          }
+        }
+      }
+    }
+    stage('Create STAGE') {
+      when {
+        expression {
+          openshift.withCluster() {
+            return !openshift.selector('dc', 'foo-stage').exists()
+          }
+        }
+      }
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.newApp("foo:stage", "--name=foo-stage").narrow('svc').expose()
+          }
+        }
+      }
+    }
+  }
 }
