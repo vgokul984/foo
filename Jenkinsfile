@@ -58,30 +58,5 @@ pipeline {
         }
       }
     }
-    stage('Promote STAGE') {
-      steps {
-        script {
-          openshift.withCluster() {
-            openshift.tag("foo:dev", "foo:stage")
-          }
-        }
-      }
-    }
-    stage('Create STAGE') {
-      when {
-        expression {
-          openshift.withCluster() {
-            return !openshift.selector('dc', 'foo-stage').exists()
-          }
-        }
-      }
-      steps {
-        script {
-          openshift.withCluster() {
-            openshift.newApp("foo:stage", "--name=foo-stage").narrow('svc').expose()
-          }
-        }
-      }
-    }
   }
 }
