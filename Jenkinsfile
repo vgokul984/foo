@@ -3,69 +3,30 @@ pipeline {
       label 'maven'
   }
   stages {
-    stage('Build App') {
-      steps {
-        sh "mvn install"
-      }
-    }
-    stage('Build Image') {
-      steps {
-        script {
-          openshift.withCluster() {
-            openshift.selector("bc", "foo").startBuild("--from-file=target/foo-spring.jar", "--wait")
-          }
-        }
-      }
-    }
-    stage('Promote to DEV') {
-      steps {
-        script {
-          openshift.withCluster() {
-            openshift.tag("foo:latest", "foo:testing")
-          }
-        }
-      }
-    }
-    stage('Create DEV') {
-      when {
-        expression {
-          openshift.withCluster() {
-            return !openshift.selector('dc', 'foo-testing').exists()
-          }
-        }
-      }
-      steps {
-        script {
-          openshift.withCluster() {
-            openshift.newApp("foo:latest", "--name=foo-testing").narrow('svc').expose()
-          }
-        }
-      }
-    }
-    stage('Promote STAGE') {
-      steps {
-        script {
-          openshift.withCluster() {
-            openshift.tag("foo:testing", "foo:stage")
-          }
-        }
-      }
-    }
-    stage('Create STAGE') {
-      when {
-        expression {
-          openshift.withCluster() {
-            return !openshift.selector('dc', 'foo-stage').exists()
-          }
-        }
-      }
-      steps {
-        script {
-          openshift.withCluster() {
-            openshift.newApp("foo:stage", "--name=foo-stage").narrow('svc').expose()
+   stage('Deploy Previous') {
+     steps {
+       script {
+         openshift.withCluster() {
+           openshift.withProject() {
+             def appName = "foo-app"
+             def ver = openshift.selector('dc', appName).object().status.latestVersion //(1)
+             println "Version: ${ver}"
+             env.VERSION = ver
+             openshift.tag("${appName}:latest", "${appName}:${ver}") //(2)
+             def dcNew = openshift.newApp("--image-stream=${appName}:${ver}", "--name=${appName}-v${ver}").narrow('dc') //(3)
+             def verNew = dcNew.object().status.latestVersion
+             println "New deployment: ${verNew}"
+             def rc = openshift.selector('rc', "sample-app-v${ver}-1")
+             timeout(5) { //(4)
+               rc.untilEach(1) {
+                 def rcMap = it.object()
+                 return (rcMap.status.replicas.equals(rcMap.status.readyReplicas))
+            }
           }
         }
       }
     }
   }
+}
+}
 }
