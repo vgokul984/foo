@@ -6,7 +6,7 @@ pipeline {
         APPLICATION_NAME = 'foo'
         GIT_REPO="https://github.com/vgokul984/foo.git"
         GIT_BRANCH="master"
-        STAGE_TAG = "promoteToQA"
+        STAGE_TAG = "testing"
         DEV_PROJECT = "development"
         STAGE_PROJECT = "testing"
         TEMPLATE_NAME = "foo"
