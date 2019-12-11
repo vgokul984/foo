@@ -8,15 +8,6 @@ pipeline {
         sh "mvn install"
       }
     }
-    stage('Create Image Builder') {
-      steps {
-        script {
-          openshift.withCluster() {
-            openshift.newBuild("--name=foo", "https://github.com/vgokul984/foo.git")
-          }
-        }
-      }
-    }
     stage('Build Image') {
       steps {
         script {
