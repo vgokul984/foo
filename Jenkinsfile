@@ -91,7 +91,7 @@ pipeline {
                 }
             }
         }
-        stage('Rollout to STAGE') {
+        stage('Rollout to Production') {
             steps {
                 script {
                     openshift.withCluster() {
@@ -107,12 +107,30 @@ pipeline {
                 } 
             }
         }
-        stage('Scale in STAGE') {
+        stage('Deploy to production') {
+            when {
+                expression {
+                    openshift.withCluster() {
+                        openshift.withProject(env.STAGE_PROJECT) {
+                            return !openshift.selector('dc', "${TEMPLATE_NAME}").exists()
+                        }
+                    }
+                }
+            }
             steps {
                 script {
-                    openshiftScale(namespace: "${STAGE_PROJECT}", deploymentConfig: "${TEMPLATE_NAME}", replicaCount: '1')
+                    openshift.withCluster() {
+                        openshift.withProject(env.STAGE_PROJECT) {
+                            def app = openshift.newApp("${TEMPLATE_NAME}:latest")
+                            app.narrow("svc").expose();
+                            def dc = openshift.selector("dc", "${TEMPLATE_NAME}")
+                            while (dc.object().spec.replicas != dc.object().status.availableReplicas) {
+                            }
+                        }
+                    }
                 }
             }
         }
+       }
     }
 }
