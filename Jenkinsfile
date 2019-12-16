@@ -21,7 +21,7 @@ pipeline {
         stage('test[unit&build]') {
             steps {
                     sh '/bin/bash -c "mvn -s pom.xml -B clean test"'
-					cp /tmp/workspace/testing/testing-jenkins-bc-foo/target /var/lib/jenkins/jobs/testing/jobs/testing-jenkins-bc-foo/result
+		    cp '/tmp/workspace/testing/testing-jenkins-bc-foo/target' '/var/lib/jenkins/jobs/testing/jobs/testing-jenkins-bc-foo/output'
 		  }
 		}
         stage('Build App') {
