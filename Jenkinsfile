@@ -18,7 +18,7 @@ npipeline {
                 git branch: "${GIT_BRANCH}", url: "${GIT_REPO}"
             }
         }
-        stage('test[Junit]') {
+        stage('test[unit]') {
             steps {
                     sh '/bin/bash -c "mvn -s pom.xml -B clean test"'
 		  }
