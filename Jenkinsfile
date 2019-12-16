@@ -23,6 +23,23 @@ pipeline {
               sh "mvn install"
            }
           }
+    stage('test[unit&quality]') {
+        parallel 'unit-test': {
+            node {
+                unstash 'source'
+                sh 'mvn -Dmaven.test.failure.ignore=true test'
+                step([$class: 'JUnitResultArchiver', testResults: 'TEST-*.xml'])
+                if(currentBuild.result == 'UNSTABLE'){
+                    error "Unit test failures"
+            }
+        }
+    }'quality-test': {
+        node {
+            unstash 'source'
+            sh 'mvn sonar:sonar'
+        } 
+    }
+    }
         stage('Create Image Builder') {
             when {
                 expression {
