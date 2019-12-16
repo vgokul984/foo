@@ -23,18 +23,15 @@ pipeline {
               sh "mvn install"
            }
           }
-    stage('test[unit&quality]') {
-        steps {
-            node {
-                unstash 'source'
-                sh 'mvn -Dmaven.test.failure.ignore=true test'
-                step([$class: 'JUnitResultArchiver', testResults: 'TEST-*.xml'])
-                if(currentBuild.result == 'UNSTABLE'){
-                    error "Unit test failures"
+        stage('test[unit&quality]') {
+            steps {
+                    sh 'mvn -Dmaven.test.failure.ignore=true test'
+                    step([$class: 'JUnitResultArchiver', testResults: 'TEST-*.xml'])
+                    if(currentBuild.result == 'UNSTABLE'){
+                        error "Unit test failures"
+                    }
+                }
             }
-        }
-    }
-    }
         stage('Create Image Builder') {
             when {
                 expression {
