@@ -33,7 +33,7 @@ pipeline {
                     error "Unit test failures"
             }
         }
-    }'quality-test': {
+    },'quality-test': {
         node {
             unstash 'source'
             sh 'mvn sonar:sonar'
