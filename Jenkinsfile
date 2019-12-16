@@ -121,7 +121,7 @@ pipeline {
                     input message: "ScapeUP to production Pod count?", ok: "scaleup"
                 }
                 script {
-		        openshift.selector("dc",  '${TEMPLATE_NAME}', replicaCount: '${prod_podcount}')
+			openshift.Scale(namespace: "${STAGE_PROJECT}", dc: "${TEMPLATE_NAME}", replicaCount: '${prod_podcount}')
 		      }
 	        }
 	}
