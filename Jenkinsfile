@@ -6,10 +6,11 @@ pipeline {
         APPLICATION_NAME = 'foo'
         GIT_REPO="https://github.com/vgokul984/foo.git"
         GIT_BRANCH="master"
-        STAGE_TAG = "testing"
+        STAGE_TAG = "production"
         DEV_PROJECT = "development"
-        STAGE_PROJECT = "testing"
+        STAGE_PROJECT = "production"
         TEMPLATE_NAME = "foo"
+	prod_podcount = "2"
         PORT = 8081;
     }
     stages {
@@ -18,7 +19,7 @@ pipeline {
                 git branch: "${GIT_BRANCH}", url: "${GIT_REPO}"
             }
         }
-        stage('test[unit]') {
+        stage('test[Junit]') {
             steps {
                     sh '/bin/bash -c "mvn -s pom.xml -B clean test"'
 		  }
@@ -62,7 +63,7 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to DEV') {
+        stage('Deploy to Development') {
             when {
                 expression {
                     openshift.withCluster() {
@@ -87,10 +88,10 @@ pipeline {
                 }
             }
         }
-        stage('Promote to testing?') {
+        stage('Promote to production?') {
             steps {
                 timeout(time:15, unit:'MINUTES') {
-                    input message: "Promote to Testing?", ok: "Promote"
+                    input message: "Promote to production?", ok: "Promote"
                 }
                 script {
                     openshift.withCluster() {
@@ -99,7 +100,7 @@ pipeline {
                 }
             }
         }
-        stage('Rollout to Testing') {
+        stage('Rollout to production') {
             steps {
                 script {
                     openshift.withCluster() {
@@ -110,6 +111,7 @@ pipeline {
                                 openshift.selector('route', '${TEMPLATE_NAME}').delete()
                             }
                         openshift.newApp("${TEMPLATE_NAME}:${STAGE_TAG}").narrow("svc").expose()
+			openshiftScale(depCfg: '${TEMPLATE_NAME}', replicaCount: '${prod_podcount}')
                         }
                     }
                 } 
