@@ -24,7 +24,7 @@ pipeline {
            }
           }
     stage('test[unit&quality]') {
-        parallel 'unit-test': {
+        steps {
             node {
                 unstash 'source'
                 sh 'mvn -Dmaven.test.failure.ignore=true test'
@@ -33,11 +33,6 @@ pipeline {
                     error "Unit test failures"
             }
         }
-    },'quality-test': {
-        node {
-            unstash 'source'
-            sh 'mvn sonar:sonar'
-        } 
     }
     }
         stage('Create Image Builder') {
