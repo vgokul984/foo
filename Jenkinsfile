@@ -43,6 +43,9 @@ pipeline {
             }
         }
         steps {
+		        timeout(time:15, unit:'MINUTES') {
+                    input message: "Test passed create Image?", ok: "create"
+                }
             script {
                 openshift.withCluster() {
                     openshift.withProject(DEV_PROJECT) {
