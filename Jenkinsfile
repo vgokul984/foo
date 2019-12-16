@@ -25,10 +25,14 @@ pipeline {
           }
         stage('test[unit&quality]') {
             steps {
-                    sh 'mvn -Dmaven.test.failure.ignore=true test'
-                    step([$class: 'JUnitResultArchiver', testResults: 'TEST-*.xml'])
-                   }
+                    sh '/bin/bash -c "mvn -s pom.xml -B clean test"'
+		  }
+	    post {
+                   always {
+                       junit testResults: '*.xml', allowEmptyResults: true
+                }	
             }
+		}
         stage('Create Image Builder') {
             when {
                 expression {
@@ -41,7 +45,7 @@ pipeline {
         }
         steps {
 		        timeout(time:15, unit:'MINUTES') {
-                    input message: "Test passed create Image?", ok: "create"
+                    input message: "Test passed Deploy Application?", ok: "Deploy"
                 }
             script {
                 openshift.withCluster() {
