@@ -115,15 +115,5 @@ pipeline {
                 } 
             }
         }
-        stage('ScaleUP to production') {
-            steps {
-	         timeout(time:15, unit:'MINUTES') {
-                    input message: "ScapeUP to production Pod count?", ok: "scaleup"
-                }
-                script {
-			openshift.Scale(namespace: "${STAGE_PROJECT}", dc: "${TEMPLATE_NAME}", replicaCount: '${prod_podcount}')
-		      }
-	        }
-	}
     }
 }
