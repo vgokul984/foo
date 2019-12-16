@@ -18,15 +18,11 @@ pipeline {
                 git branch: "${GIT_BRANCH}", url: "${GIT_REPO}"
             }
         }
-        stage('test[unit&quality]') {
+        stage('test[unit&build]') {
             steps {
                     sh '/bin/bash -c "mvn -s pom.xml -B clean test"'
+					cp /tmp/workspace/testing/testing-jenkins-bc-foo/target /var/lib/jenkins/jobs/testing/jobs/testing-jenkins-bc-foo/result
 		  }
-	    post {
-                   always {
-                       junit testResults: '*.xml', allowEmptyResults: true
-                }	
-            }
 		}
         stage('Build App') {
             steps {
