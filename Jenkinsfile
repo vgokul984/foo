@@ -27,10 +27,7 @@ pipeline {
             steps {
                     sh 'mvn -Dmaven.test.failure.ignore=true test'
                     step([$class: 'JUnitResultArchiver', testResults: 'TEST-*.xml'])
-                    if(currentBuild.result == 'UNSTABLE'){
-                        error "Unit test failures"
-                    }
-                }
+                   }
             }
         stage('Create Image Builder') {
             when {
