@@ -115,15 +115,15 @@ pipeline {
                 } 
             }
         }
-        stage('Rollout to production') {
+        stage('ScaleUP to production') {
             steps {
 	         timeout(time:15, unit:'MINUTES') {
                     input message: "Promote to production?", ok: "Promote"
                 }
                 script {
-		            openshiftScale(depCfg: '${TEMPLATE_NAME}', replicaCount: '${prod_podcount}')
-				}
-			}
-		}
+		        openshift.selector("dc",  '${TEMPLATE_NAME}', replicaCount: '${prod_podcount}')
+		      }
+	        }
+	}
     }
 }
