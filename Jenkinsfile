@@ -1,4 +1,4 @@
-pipeline {
+npipeline {
     agent {
         node {label 'maven'}
     }
@@ -92,7 +92,7 @@ pipeline {
         stage('Promote to testing?') {
             steps {
                 timeout(time:15, unit:'MINUTES') {
-                    input message: "Promote to STAGE?", ok: "Promote"
+                    input message: "Promote to Testing?", ok: "Promote"
                 }
                 script {
                     openshift.withCluster() {
@@ -101,7 +101,7 @@ pipeline {
                 }
             }
         }
-        stage('Rollout to production') {
+        stage('Rollout to Testing') {
             steps {
                 script {
                     openshift.withCluster() {
