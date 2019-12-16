@@ -21,7 +21,7 @@ pipeline {
         stage('test[unit&build]') {
             steps {
                     sh '/bin/bash -c "mvn -s pom.xml -B clean test"'
-		    sh '/bin/bash -c "mvn surefire-report:report -DoutputDirectory=/var/lib/jenkins/jobs/testing/jobs/testing-jenkins-bc-foo/result"'
+		    sh '/bin/bash -c "mvn surefire-report:report -DoutputDirectory=/var/lib/jenkins/jobs/testing/jobs/testing-jenkins-bc-foo/workspace@script/result"'
 		  }
 		}
         stage('Build App') {
