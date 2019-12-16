@@ -18,11 +18,6 @@ pipeline {
                 git branch: "${GIT_BRANCH}", url: "${GIT_REPO}"
             }
         }
-        stage('Build App') {
-            steps {
-              sh "mvn install"
-           }
-          }
         stage('test[unit&quality]') {
             steps {
                     sh '/bin/bash -c "mvn -s pom.xml -B clean test"'
@@ -33,6 +28,11 @@ pipeline {
                 }	
             }
 		}
+        stage('Build App') {
+            steps {
+              sh "mvn install"
+           }
+          }
         stage('Create Image Builder') {
             when {
                 expression {
