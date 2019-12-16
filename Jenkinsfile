@@ -10,7 +10,6 @@ pipeline {
         DEV_PROJECT = "development"
         STAGE_PROJECT = "production"
         TEMPLATE_NAME = "foo"
-	prod_podcount = "2"
         PORT = 8081;
     }
     stages {
@@ -19,7 +18,7 @@ pipeline {
                 git branch: "${GIT_BRANCH}", url: "${GIT_REPO}"
             }
         }
-        stage('test[Junit]') {
+        stage('test[unit]') {
             steps {
                     sh '/bin/bash -c "mvn -s pom.xml -B clean test"'
 		  }
@@ -111,11 +110,20 @@ pipeline {
                                 openshift.selector('route', '${TEMPLATE_NAME}').delete()
                             }
                         openshift.newApp("${TEMPLATE_NAME}:${STAGE_TAG}").narrow("svc").expose()
-			openshiftScale(depCfg: '${TEMPLATE_NAME}', replicaCount: '${prod_podcount}')
                         }
                     }
                 } 
             }
         }
+        stage('Rollout to production') {
+            steps {
+	         timeout(time:15, unit:'MINUTES') {
+                    input message: "Promote to production?", ok: "Promote"
+                }
+                script {
+		            openshiftScale(depCfg: '${TEMPLATE_NAME}', replicaCount: '${prod_podcount}')
+				}
+			}
+		}
     }
 }
