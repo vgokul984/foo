@@ -18,15 +18,16 @@ pipeline {
                 git branch: "${GIT_BRANCH}", url: "${GIT_REPO}"
             }
         }
-        stage('test[unit&build]') {
+        stage('test[Junit]') {
             steps {
                     sh '/bin/bash -c "mvn -s pom.xml -B clean test"'
-		    sh '/bin/bash -c "mvn surefire-report:report -DoutputDirectory=/var/lib/jenkins/jobs/testing/jobs/testing-jenkins-bc-foo/workspace@script/result"'
 		  }
 		}
         stage('Build App') {
             steps {
               sh "mvn install"
+	      sh '/bin/bash -c "mkdir /var/lib/jenkins/jobs/testing/jobs/testing-jenkins-bc-foo/workspace@script/result"
+	      sh '/bin/bash -c "cp -r /target/* /var/lib/jenkins/jobs/testing/jobs/testing-jenkins-bc-foo/workspace@script/result"'
            }
           }
         stage('Create Image Builder') {
@@ -40,7 +41,7 @@ pipeline {
             }
         }
         steps {
-		        timeout(time:15, unit:'MINUTES') {
+		timeout(time:15, unit:'MINUTES') {
                     input message: "Test passed Deploy Application?", ok: "Deploy"
                 }
             script {
@@ -88,7 +89,7 @@ pipeline {
                 }
             }
         }
-        stage('Promote to Production?') {
+        stage('Promote to testing?') {
             steps {
                 timeout(time:15, unit:'MINUTES') {
                     input message: "Promote to STAGE?", ok: "Promote"
