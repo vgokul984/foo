@@ -26,7 +26,7 @@ npipeline {
         stage('Build App') {
             steps {
               sh "mvn install"
-	      sh '/bin/bash -c "mkdir /var/lib/jenkins/jobs/testing/jobs/testing-jenkins-bc-foo/workspace@script/result"
+	      sh '/bin/bash -c "mkdir /var/lib/jenkins/jobs/testing/jobs/testing-jenkins-bc-foo/workspace@script/result"'
 	      sh '/bin/bash -c "cp -r /target/* /var/lib/jenkins/jobs/testing/jobs/testing-jenkins-bc-foo/workspace@script/result"'
            }
           }
