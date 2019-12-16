@@ -26,8 +26,6 @@ npipeline {
         stage('Build App') {
             steps {
               sh "mvn install"
-	      sh '/bin/bash -c "mkdir /var/lib/jenkins/jobs/testing/jobs/testing-jenkins-bc-foo/workspace@script/result"'
-	      sh '/bin/bash -c "cp -r /target/* /var/lib/jenkins/jobs/testing/jobs/testing-jenkins-bc-foo/workspace@script/result"'
            }
           }
         stage('Create Image Builder') {
@@ -42,7 +40,7 @@ npipeline {
         }
         steps {
 		timeout(time:15, unit:'MINUTES') {
-                    input message: "Test passed Deploy Application?", ok: "Deploy"
+                    input message: "Test passed Build and Deploy Application?", ok: "Deploy"
                 }
             script {
                 openshift.withCluster() {
