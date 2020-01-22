@@ -31,7 +31,7 @@ spec:
         deploymentconfig: tknfoo
     spec:
       containers:
-      - image: ' '
+      - image: 'image-registry.openshift-image-registry.svc:5000/development/tknfoo'
         imagePullPolicy: Always
         name: tknfoo
         ports:
