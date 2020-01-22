@@ -46,6 +46,7 @@ spec:
   triggers:
   - type: ConfigChange
   - imageChangeParams:
+      automatic: true
       containerNames:
       - tknfoo
       from:
