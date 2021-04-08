@@ -1,5 +1,10 @@
 pipeline {
-  agent any
+  agent {
+    node {
+      label 'maven'
+    }
+
+  }
   stages {
     stage('Get Latest Code') {
       steps {
